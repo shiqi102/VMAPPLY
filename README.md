@@ -1,4 +1,4 @@
-# VMAPPLY / DriveWorld
+# VMAPPLY
 
 基于 HuggingFace 世界模型（CogVideoX-5B、Stable Video Diffusion）的**自动驾驶长尾场景生成与风险评估**系统。面向雨夜、路口、cut-in、行人横穿、急刹等复杂驾驶场景，生成具有时序连续性的驾驶视频，并通过 SegFormer + SAM2 视觉解析、光流跟踪与 TTC/PET 等指标完成场景风险评估。
 
