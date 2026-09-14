@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "driveworld"
+version = "0.1.0"
+description = "自动驾驶长尾场景生成与风险评估系统"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.1.0",
+    "diffusers>=0.30.0",
+    "transformers>=4.40.0",
+    "opencv-python>=4.8.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "pyyaml>=6.0",
+    "imageio>=2.34.0",
+    "imageio-ffmpeg>=0.4.9",
+]
+
+[tool.setuptools.packages.find]
+include = ["driveworld*"]

@@ -1,0 +1,118 @@
+# DriveWorld 场景生成与风险评估 - 默认配置
+
+# 长尾驾驶场景提示词（文生视频用 text_prompt，图生视频可配 keyframe）
+scenarios:
+  rainy_night:
+    description: "雨夜湿滑路面驾驶"
+    text_prompt: >-
+      A dashcam view of driving on a wet city road at night during heavy rain,
+      streetlights reflecting on the wet pavement, a car ahead with brake lights on.
+    keyframe: null
+
+  kitti_test:
+    description: "KITTI 前视场景"
+    text_prompt: "A dashcam view driving on a city road"
+    keyframe: "data/kitti/images/0000000018.png"
+
+  intersection:
+    description: "繁忙城市路口"
+    text_prompt: >-
+      A dashcam view approaching a busy urban intersection, multiple vehicles
+      and pedestrians crossing, traffic lights visible.
+    keyframe: null
+
+  cut_in:
+    description: "高速公路突然变道切入"
+    text_prompt: >-
+      A dashcam view on a highway, a vehicle suddenly cuts in from the right lane
+      into the ego lane without warning.
+    keyframe: null
+
+  pedestrian_crossing:
+    description: "行人突然横穿马路"
+    text_prompt: >-
+      A dashcam view in an urban area, a pedestrian suddenly runs across the road
+      from behind a parked vehicle.
+    keyframe: null
+
+  emergency_brake:
+    description: "前车急刹"
+    text_prompt: >-
+      A dashcam view on a city road, the vehicle ahead suddenly brakes hard,
+      brake lights illuminating brightly.
+    keyframe: null
+
+generation:
+  seed: 42
+
+  # 文本到视频: CogVideoX-5B
+  cogvideox:
+    model_id: "THUDM/CogVideoX-5b"
+    num_frames: 49
+    fps: 8
+    num_inference_steps: 50
+    guidance_scale: 6.0
+    dtype: "bfloat16"
+
+  # 关键帧到视频: Stable Video Diffusion
+  svd:
+    model_id: "stabilityai/stable-video-diffusion-img2vid-xt"
+    num_frames: 25
+    fps: 7
+    num_inference_steps: 25
+    motion_bucket_id: 127
+    noise_aug_strength: 0.02
+    decode_chunk_size: 8
+    dtype: "float16"
+
+  # 多轮生成与质量筛选
+  quality_filter:
+    min_sharpness: 50.0
+    min_brightness: 30.0
+    max_brightness: 220.0
+    min_temporal_consistency: 0.7
+    max_retries: 3
+
+parsing:
+  segformer:
+    model_id: "nvidia/segformer-b5-finetuned-cityscapes-1024-1024"
+    road_classes: [0, 1]  # road, sidewalk
+    input_size: [1024, 1024]
+
+  sam2:
+    model_id: "facebook/sam2-hiera-large"
+    points_per_side: 32
+    pred_iou_thresh: 0.88
+    stability_score_thresh: 0.95
+
+motion:
+  optical_flow:
+    method: "farneback"
+    pyr_scale: 0.5
+    levels: 3
+    winsize: 15
+
+  tracking:
+    min_track_length: 5
+    iou_threshold: 0.3
+    max_disappeared: 10
+
+risk:
+  ttc_threshold: 3.0       # 秒
+  pet_threshold: 1.5       # 秒
+  lane_intrusion_thresh: 0.3
+  weights:
+    ttc: 0.3
+    pet: 0.2
+    collision: 0.25
+    lane_intrusion: 0.15
+    occlusion: 0.1
+
+output:
+  dir: "outputs"
+  save_intermediate: true
+  video_format: "mp4"
+  parsing_viz:
+    max_frames: 10       # 均匀采样保存的帧数
+    save_video: true     # 生成 parsing_overview.mp4
+    overlay_alpha: 0.45  # mask 叠加透明度
